@@ -6,6 +6,9 @@ Project ini digunakan sebagai template pembuatan backend menggunakan FastAPI
 
 # Tech Stack
 
+Project ini digunakan sebagai template pembuatan backend menggunakan FastAPI
+
+# Tech Stack
 Python version: 3.9.0
 Server: FastAPI
 Database: MongoDB (Default)
