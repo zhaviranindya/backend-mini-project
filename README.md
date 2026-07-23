@@ -2,13 +2,17 @@
 
 # Description
 
+<<<<<<< HEAD
 Project ini digunakan sebagai template pembuatan backend menggunakan FastAPI
 
 # Tech Stack
 
+=======
+>>>>>>> 3b6a9a7 ([fix] [readme] update readme bagian folder structure)
 Project ini digunakan sebagai template pembuatan backend menggunakan FastAPI
 
 # Tech Stack
+
 Python version: 3.9.0
 Server: FastAPI
 Database: MongoDB (Default)
