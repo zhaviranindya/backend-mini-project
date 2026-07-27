@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from app.routes.health_route import router as health_router
 from app.routes.tickets_route import router as tickets_router
 

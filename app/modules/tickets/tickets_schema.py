@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from datetime import date
+
 
 class TicketsResponse(BaseModel):
     ticket_id: str
@@ -7,3 +9,6 @@ class TicketsResponse(BaseModel):
     description: str
     priority: str
     status: str
+    category: str
+    reported_by: str
+    created_at: date
