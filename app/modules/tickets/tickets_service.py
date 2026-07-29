@@ -1,5 +1,6 @@
-from app.modules.tickets.tickets_repository import TicketsRepository
 from typing import Optional
+
+from app.modules.tickets.tickets_repository import TicketsRepository
 
 
 class TicketsService:
@@ -11,3 +12,6 @@ class TicketsService:
 
     async def search_tickets(self, status: Optional[str] = None):
         return TicketsRepository().search_tickets(status)
+
+    async def create_ticket(self, ticket_data: dict):
+        return TicketsRepository().create_ticket(ticket_data)

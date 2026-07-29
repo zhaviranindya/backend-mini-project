@@ -4,3 +4,5 @@ app/**/*.pyc
 docker-compose.yaml
 Dockerfile
 local_requirements.txt
+.ruff_cache
+pyproject.toml

@@ -1,13 +1,15 @@
-from fastapi import APIRouter, HTTPException
-from app.modules.tickets.tickets_service import TicketsService
-from app.modules.tickets.tickets_schema import TicketsResponse
 from typing import Optional
+
+from fastapi import APIRouter, HTTPException
+
+from app.modules.tickets.tickets_schema import TicketsCreateRequest, TicketsResponse
+from app.modules.tickets.tickets_service import TicketsService
 
 router = APIRouter()
 
 
 @router.get("/tickets", response_model=list[TicketsResponse])
-async def get_tickets_and_search(status: Optional[str] = None):
+async def get_tickets_and_search(status: Optional[str]  = None):
     if status:
         result = await TicketsService().search_tickets(status)
     else:
@@ -22,3 +24,9 @@ async def get_detail_ticket(ticket_id: str):
     if ticket is None:
         raise HTTPException(status_code=404, detail="Ticket tidak ditemukan!")
     return ticket
+
+
+@router.post("/tickets", response_model=TicketsResponse)
+async def create_ticket(ticket: TicketsCreateRequest):
+    new_ticket = await TicketsService().create_ticket(ticket.dict())
+    return new_ticket
