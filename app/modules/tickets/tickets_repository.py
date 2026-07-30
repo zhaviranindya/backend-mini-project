@@ -1,3 +1,6 @@
+from typing import Optional
+
+
 class TicketsRepository:
     def get_tickets(self):
         return {
@@ -57,7 +60,16 @@ class TicketsRepository:
 
     def get_ticket_by_id(self, ticket_id: str):
         data = self.get_tickets()
-        for tickets in data["tickets"]:
-            if tickets["ticket_id"] == ticket_id:
-                return tickets
+        for ticket in data["tickets"]:
+            if ticket["ticket_id"] == ticket_id:
+                return ticket
         return None
+
+    def search_tickets(self, status: Optional[str] = None):
+        data = self.get_tickets()
+        result = data["tickets"]
+
+        if status:
+            result = [ticket for ticket in result if ticket["status"] == status]
+
+        return result
