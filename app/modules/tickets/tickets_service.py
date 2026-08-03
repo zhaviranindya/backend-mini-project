@@ -21,3 +21,6 @@ class TicketsService:
 
     async def update_ticket(self, ticket_id: str, ticket_data: dict):
         return self.repository.update_ticket(ticket_id, ticket_data)
+
+    async def delete_ticket(self, ticket_id: str):
+        return self.repository.delete_ticket(ticket_id)
