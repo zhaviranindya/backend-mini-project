@@ -2,31 +2,39 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException
 
-from app.modules.tickets.tickets_schema import TicketsCreateRequest, TicketsResponse
+from app.modules.tickets.tickets_schema import TicketsCreateRequest, TicketsResponse, TicketsUpdateRequest
 from app.modules.tickets.tickets_service import TicketsService
 
-router = APIRouter()
+router = APIRouter(prefix="/tickets", tags=["Tickets"])
 
+service = TicketsService()
 
-@router.get("/tickets", response_model=list[TicketsResponse])
-async def get_tickets_and_search(status: Optional[str]  = None):
+@router.get("", response_model=list[TicketsResponse])
+async def get_tickets(status: Optional[str]  = None):
     if status:
-        result = await TicketsService().search_tickets(status)
+        result = await service.search_tickets(status)
     else:
-        data = await TicketsService().get_tickets()
-        result = data["tickets"]
+        result = await service.get_tickets()
     return result
 
 
-@router.get("/tickets/{ticket_id}", response_model=TicketsResponse)
-async def get_detail_ticket(ticket_id: str):
-    ticket = await TicketsService().get_ticket_by_id(ticket_id)
+@router.get("/{ticket_id}", response_model=TicketsResponse)
+async def get_ticket_by_id(ticket_id: str):
+    ticket = await service.get_ticket_by_id(ticket_id)
     if ticket is None:
         raise HTTPException(status_code=404, detail="Ticket tidak ditemukan!")
     return ticket
 
 
-@router.post("/tickets", response_model=TicketsResponse)
+@router.post("", response_model=TicketsResponse, status_code=201)
 async def create_ticket(ticket: TicketsCreateRequest):
-    new_ticket = await TicketsService().create_ticket(ticket.dict())
+    new_ticket = await service.create_ticket(ticket.dict())
     return new_ticket
+
+@router.patch("/{ticket_id}", response_model=TicketsResponse)
+async def update_ticket(ticket_id: str, ticket: TicketsUpdateRequest):
+    update_ticket = await service.update_ticket(ticket_id, ticket.dict())
+
+    if update_ticket is None:
+        raise HTTPException(status_code=404, detail="Ticket tidak ditemukan!")
+    return update_ticket

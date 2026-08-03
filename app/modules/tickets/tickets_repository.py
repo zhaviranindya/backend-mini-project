@@ -69,7 +69,7 @@ class TicketsRepository:
     }
 
     def get_tickets(self):
-        return self.tickets_data
+        return self.tickets_data["tickets"]
 
     def get_ticket_by_id(self, ticket_id: str):
         for ticket in self.tickets_data["tickets"]:
@@ -99,3 +99,24 @@ class TicketsRepository:
         }
         self.tickets_data["tickets"].append(new_ticket)
         return new_ticket
+
+    def update_ticket(self, ticket_id: str, ticket_data: dict):
+        for ticket in self.tickets_data["tickets"]:
+            if ticket["ticket_id"] == ticket_id:
+                if ticket_data["title"] is not None:
+                    ticket["title"] = ticket_data["title"]
+
+                if ticket_data["description"] is not None:
+                    ticket["description"] = ticket_data["description"]
+
+                if ticket_data["priority"] is not None:
+                    ticket["priority"] = ticket_data["priority"]
+
+                if ticket_data["status"] is not None:
+                    ticket["status"] = ticket_data["status"]
+
+                if ticket_data["category"] is not None:
+                    ticket["category"] = ticket_data["category"]
+
+                return ticket
+        return None

@@ -4,14 +4,20 @@ from app.modules.tickets.tickets_repository import TicketsRepository
 
 
 class TicketsService:
+    def __init__(self):
+        self.repository = TicketsRepository()
+
     async def get_tickets(self):
-        return TicketsRepository().get_tickets()
+        return self.repository.get_tickets()
 
     async def get_ticket_by_id(self, ticket_id: str):
-        return TicketsRepository().get_ticket_by_id(ticket_id)
+        return self.repository.get_ticket_by_id(ticket_id)
 
     async def search_tickets(self, status: Optional[str] = None):
-        return TicketsRepository().search_tickets(status)
+        return self.repository.search_tickets(status)
 
     async def create_ticket(self, ticket_data: dict):
-        return TicketsRepository().create_ticket(ticket_data)
+        return self.repository.create_ticket(ticket_data)
+
+    async def update_ticket(self, ticket_id: str, ticket_data: dict):
+        return self.repository.update_ticket(ticket_id, ticket_data)
