@@ -120,3 +120,10 @@ class TicketsRepository:
 
                 return ticket
         return None
+
+    def delete_ticket(self, ticket_id: str):
+        for ticket in self.tickets_data["tickets"]:
+            if ticket["ticket_id"] == ticket_id:
+                self.tickets_data["tickets"].remove(ticket)
+                return True
+        return False

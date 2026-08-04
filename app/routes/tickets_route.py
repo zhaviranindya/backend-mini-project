@@ -38,3 +38,11 @@ async def update_ticket(ticket_id: str, ticket: TicketsUpdateRequest):
     if update_ticket is None:
         raise HTTPException(status_code=404, detail="Ticket tidak ditemukan!")
     return update_ticket
+
+@router.delete("/{ticket_id}")
+async def delete_ticket(ticket_id: str):
+    delete_ticket = await service.delete_ticket(ticket_id)
+
+    if not delete_ticket:
+        raise HTTPException(status_code=404, detail="Ticket tidak ditemukan!")
+    return {"message": f"Ticket dengan ID {ticket_id} berhasil dihapus"}
