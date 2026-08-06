@@ -1,89 +1,51 @@
 from datetime import date
 from typing import Optional
+from fastapi import Depends
 
+from app.database import tickets_collection
+
+def get_tickets_collection():
+    return tickets_collection
 
 class TicketsRepository:
-    tickets_data = {
-        "tickets": [
-            {
-                "ticket_id": "TCK-001",
-                "title": "Tidak bisa login",
-                "description": "User tidak dapat login ke aplikasi.",
-                "priority": "High",
-                "status": "Open",
-                "category": "Software",
-                "reported_by": "Billal Syaidan",
-                "created_at": "2026-07-20",
-            },
-            {
-                "ticket_id": "TCK-002",
-                "title": "Printer rusak",
-                "description": "Printer tidak mengeluarkan hasil cetak.",
-                "priority": "Medium",
-                "status": "In Progress",
-                "category": "Hardware",
-                "reported_by": "Anindya Kayla",
-                "created_at": "2026-07-21",
-            },
-            {
-                "ticket_id": "TCK-003",
-                "title": "Permintaan reset password",
-                "description": "User lupa password dan meminta untuk di reset",
-                "priority": "Medium",
-                "status": "Open",
-                "category": "Account & Access",
-                "reported_by": "Janari Yoga Swara",
-                "created_at": "2026-07-22",
-            },
-            {
-                "ticket_id": "TCK-004",
-                "title": "Tidak bisa cetak dokumen",
-                "description": "Printer tidak merespon perintah print dari komputer, padahal ketika di cek kabel sudah tersambung",
-                "priority": "Medium",
-                "status": "Open",
-                "category": "Hardware",
-                "reported_by": "Amira Putri",
-                "created_at": "2026-07-23",
-            },
-            {
-                "ticket_id": "TCK-005",
-                "title": "AC ruangan lantai 1 tidak dingin",
-                "description": "Ruangan lantai 1 jadi terasa panas karena AC kurang dingin",
-                "priority": "Medium",
-                "status": "Closed",
-                "category": "Facility",
-                "reported_by": "Nabil Arkananta",
-                "created_at": "2026-07-24",
-            },
-            {
-                "ticket_id": "TCK-006",
-                "title": "Lampu ruang rapat mati",
-                "description": "Dua buah bohlam lampu di ruang rapat mati dan perlu segera diganti sebelum meeting sore",
-                "priority": "Low",
-                "status": "Open",
-                "category": "Facility",
-                "reported_by": "Dimas Nugraha",
-                "created_at": "2026-07-29",
-            },
-        ]
-    }
 
-    def get_tickets(self):
-        return self.tickets_data["tickets"]
+    def __init__(self, collection = Depends(get_tickets_collection)):
+        self.collection = collection
+
+    async def get_tickets(self, search_title: str = None, status: str = None):
+        query = {}
+        if search_title:
+            query["title"] = search_title
+        if status:
+            query["status"] = status
+
+        fields = {
+            "ticket_id": 1,
+            "title": 1,
+            "priority": 1,
+            "status": 1,
+            "category": 1,
+            "reported_by": 1,
+            "created_at": 1
+        }
+
+        result = (
+            self.collection.find(query, fields)
+            .sort("created_at", -1)
+        )
+        tickets = await result.to_list()
+
+        for ticket in tickets:
+            ticket["id"] = str(ticket["_id"])
+            del ticket["_id"]
+
+        return tickets
 
     def get_ticket_by_id(self, ticket_id: str):
         for ticket in self.tickets_data["tickets"]:
             if ticket["ticket_id"] == ticket_id:
                 return ticket
         return None
-
-    def search_tickets(self, status: Optional[str] = None):
-        result = self.tickets_data["tickets"]
-
-        if status:
-            result = [ticket for ticket in result if ticket["status"] == status]
-
-        return result
 
     def create_ticket(self, ticket_data: dict):
         new_ticket_id = len(self.tickets_data["tickets"]) + 1
