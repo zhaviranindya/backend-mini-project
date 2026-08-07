@@ -10,9 +10,10 @@ class TicketsService:
     def __init__(self, repository: TicketsRepository = Depends(get_repository)):
         self.repository = repository
 
-    async def get_tickets(self, search_title: str = None, status: str = None):
+    async def get_tickets(self, search_title: str = None, status: str = None,
+                          page: int = None, limit: int = 5):
 
-        return await self.repository.get_tickets(search_title, status)
+        return await self.repository.get_tickets(search_title, status, page, limit)
 
     async def get_ticket_by_id(self, ticket_id: str):
         return self.repository.get_ticket_by_id(ticket_id)
