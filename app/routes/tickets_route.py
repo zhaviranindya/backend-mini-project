@@ -1,25 +1,24 @@
 from typing import Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 
 from app.modules.tickets.tickets_schema import TicketsCreateRequest, TicketsResponse, TicketsUpdateRequest
 from app.modules.tickets.tickets_service import TicketsService
 
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
 
-service = TicketsService()
+def get_service(service: TicketsService = Depends()):
+    return service
 
 @router.get("", response_model=list[TicketsResponse])
-async def get_tickets(status: Optional[str]  = None):
-    if status:
-        result = await service.search_tickets(status)
-    else:
-        result = await service.get_tickets()
-    return result
+async def get_tickets(search_title: Optional[str] = None, status: Optional[str] = None, 
+                      service: TicketsService = Depends(get_service)):
+    return await service.get_tickets(search_title, status)
 
 
 @router.get("/{ticket_id}", response_model=TicketsResponse)
-async def get_ticket_by_id(ticket_id: str):
+async def get_ticket_by_id(ticket_id: str, 
+                           service: TicketsService = Depends(get_service)):
     ticket = await service.get_ticket_by_id(ticket_id)
     if ticket is None:
         raise HTTPException(status_code=404, detail="Ticket tidak ditemukan!")
@@ -27,12 +26,14 @@ async def get_ticket_by_id(ticket_id: str):
 
 
 @router.post("", response_model=TicketsResponse, status_code=201)
-async def create_ticket(ticket: TicketsCreateRequest):
+async def create_ticket(ticket: TicketsCreateRequest, 
+                        service: TicketsService = Depends(get_service)):
     new_ticket = await service.create_ticket(ticket.model_dump())
     return new_ticket
 
 @router.patch("/{ticket_id}", response_model=TicketsResponse)
-async def update_ticket(ticket_id: str, ticket: TicketsUpdateRequest):
+async def update_ticket(ticket_id: str, ticket: TicketsUpdateRequest, 
+                        service: TicketsService = Depends(get_service)):
     updated_ticket = await service.update_ticket(ticket_id, ticket.model_dump())
 
     if update_ticket is None:
@@ -40,7 +41,7 @@ async def update_ticket(ticket_id: str, ticket: TicketsUpdateRequest):
     return updated_ticket
 
 @router.delete("/{ticket_id}")
-async def delete_ticket(ticket_id: str):
+async def delete_ticket(ticket_id: str, service: TicketsService = Depends(get_service)):
     deleted_ticket = await service.delete_ticket(ticket_id)
 
     if not deleted_ticket:
