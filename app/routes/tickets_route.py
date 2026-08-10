@@ -2,7 +2,8 @@ from typing import Optional
 
 from fastapi import APIRouter, HTTPException, Depends
 
-from app.modules.tickets.tickets_schema import TicketsCreateRequest, TicketsResponse, TicketsUpdateRequest
+from app.modules.tickets.tickets_schema import TicketsCreateRequest, TicketsResponse
+from app.modules.tickets.tickets_schema import TicketsUpdateRequest
 from app.modules.tickets.tickets_service import TicketsService
 
 router = APIRouter(prefix="/tickets", tags=["Tickets"])
@@ -12,8 +13,9 @@ def get_service(service: TicketsService = Depends()):
 
 @router.get("", response_model=list[TicketsResponse])
 async def get_tickets(search_title: Optional[str] = None, status: Optional[str] = None, 
+                      page: int = None, limit: int = 5,
                       service: TicketsService = Depends(get_service)):
-    return await service.get_tickets(search_title, status)
+    return await service.get_tickets(search_title, status, page, limit)
 
 
 @router.get("/{ticket_id}", response_model=TicketsResponse)

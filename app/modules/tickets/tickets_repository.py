@@ -12,7 +12,8 @@ class TicketsRepository:
     def __init__(self, collection = Depends(get_tickets_collection)):
         self.collection = collection
 
-    async def get_tickets(self, search_title: str = None, status: str = None):
+    async def get_tickets(self, search_title: str = None, status: str = None,
+                          page: int = None, limit: int = 5):
         query = {}
         if search_title:
             query["title"] = search_title
@@ -29,11 +30,17 @@ class TicketsRepository:
             "created_at": 1
         }
 
-        result = (
+        tickets_query = (
             self.collection.find(query, fields)
             .sort("created_at", -1)
         )
-        tickets = await result.to_list()
+
+        if page is not None:
+            skip = (page - 1) * limit
+            pagination_result = tickets_query.skip(skip).limit(limit)
+            tickets = await pagination_result.to_list()
+        else: 
+            tickets = await tickets_query.to_list()
 
         for ticket in tickets:
             ticket["id"] = str(ticket["_id"])
