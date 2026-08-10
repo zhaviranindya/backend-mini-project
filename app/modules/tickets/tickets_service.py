@@ -15,8 +15,8 @@ class TicketsService:
 
         return await self.repository.get_tickets(search_title, status, page, limit)
 
-    async def get_ticket_by_id(self, ticket_id: str):
-        return self.repository.get_ticket_by_id(ticket_id)
+    async def get_ticket_by_id(self, id: str):
+        return await self.repository.get_ticket_by_id(id)
 
     async def search_tickets(self, status: Optional[str] = None):
         return self.repository.search_tickets(status)

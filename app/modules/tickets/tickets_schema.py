@@ -15,16 +15,26 @@ class TicketPriority(str, Enum):
     Medium = "Medium"
     High = "High"
 
-class TicketsResponse(BaseModel):
+class TicketsListResponse(BaseModel):
     id : str 
-    ticket_id: str
+    ticket_code: str
     title: str
     priority: TicketPriority
     status: TicketStatus
     category: str
-    reported_by: str
+    reported_name: str
     created_at: date
 
+class TicketsResponse(BaseModel):
+    id : str 
+    ticket_code: str
+    title: str
+    description: str
+    priority: TicketPriority
+    status: TicketStatus
+    category: str
+    reported_name: str
+    created_at: date
 
 class TicketsCreateRequest(BaseModel):
     title: str = Field(..., min_length=1, description="Judul ticket wajib diisi")
@@ -32,7 +42,7 @@ class TicketsCreateRequest(BaseModel):
     "diisi")
     priority: str = Field(..., min_length=1, description="Prioritas ticket wajib diisi")
     category: str = Field(..., min_length=1, description="Kategori ticket wajib diisi")
-    reported_by: str = Field(..., min_length=1, description="Nama Pelapor ticket " \
+    reported_name: str = Field(..., min_length=1, description="Nama Pelapor ticket " \
     "wajib diisi")
 
 

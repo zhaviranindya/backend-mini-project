@@ -1,5 +1,6 @@
 from datetime import date
 from typing import Optional
+from bson import ObjectId
 from fastapi import Depends
 
 from app.database import tickets_collection
@@ -21,12 +22,12 @@ class TicketsRepository:
             query["status"] = status
 
         fields = {
-            "ticket_id": 1,
+            "ticket_code": 1,
             "title": 1,
             "priority": 1,
             "status": 1,
             "category": 1,
-            "reported_by": 1,
+            "reported_name": 1,
             "created_at": 1
         }
 
@@ -48,11 +49,30 @@ class TicketsRepository:
 
         return tickets
 
-    def get_ticket_by_id(self, ticket_id: str):
-        for ticket in self.tickets_data["tickets"]:
-            if ticket["ticket_id"] == ticket_id:
-                return ticket
-        return None
+    async def get_ticket_by_id(self, id: str):
+        if not ObjectId.is_valid(id):
+            return None
+
+        fields = {
+                    "ticket_code": 1,
+                    "title": 1,
+                    "description": 1,
+                    "priority": 1,
+                    "status": 1,
+                    "category": 1,
+                    "reported_name": 1,
+                    "created_at": 1
+                }
+
+        ticket = await self.collection.find_one({"_id": ObjectId(id)}, fields)
+
+        if ticket is None:
+            return None
+
+        ticket["id"] = str(ticket["_id"])
+        del ticket["_id"]
+        return ticket
+
 
     def create_ticket(self, ticket_data: dict):
         new_ticket_id = len(self.tickets_data["tickets"]) + 1
@@ -63,7 +83,7 @@ class TicketsRepository:
             "priority": ticket_data["priority"],
             "status": "Open",
             "category": ticket_data["category"],
-            "reported_by": ticket_data["reported_by"],
+            "reported_name": ticket_data["reported_name"],
             "created_at": date.today(),
         }
         self.tickets_data["tickets"].append(new_ticket)
