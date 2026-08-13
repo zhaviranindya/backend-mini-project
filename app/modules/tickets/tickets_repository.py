@@ -1,47 +1,29 @@
 from datetime import date
-from typing import Optional
+
 from bson import ObjectId
-from fastapi import Depends
 
-from app.database import tickets_collection
+from app.database import db
+from app.modules.tickets.tickets_schema import TicketStatus
 
-def get_tickets_collection():
-    return tickets_collection
 
 class TicketsRepository:
+    def __init__(self):
+        self.collection = db.get_collection("tickets")
 
-    def __init__(self, collection = Depends(get_tickets_collection)):
-        self.collection = collection
-
-    async def get_tickets(self, search_title: str = None, status: str = None,
-                          page: int = None, limit: int = 5):
+    async def get_tickets(self, search_title: str = None, status: TicketStatus = None, page: int = 1, limit: int = 5):
         query = {}
         if search_title:
-            query["title"] = search_title
+            query["title"] = {"$regex": search_title, "$options": "i"}
         if status:
             query["status"] = status
 
-        fields = {
-            "ticket_code": 1,
-            "title": 1,
-            "priority": 1,
-            "status": 1,
-            "category": 1,
-            "reported_name": 1,
-            "created_at": 1
-        }
+        fields = {"ticket_code": 1, "title": 1, "priority": 1, "status": 1, "category": 1, "reported_name": 1, "created_at": 1}
 
-        tickets_query = (
-            self.collection.find(query, fields)
-            .sort("created_at", -1)
-        )
+        skip = (page - 1) * limit
 
-        if page is not None:
-            skip = (page - 1) * limit
-            pagination_result = tickets_query.skip(skip).limit(limit)
-            tickets = await pagination_result.to_list()
-        else: 
-            tickets = await tickets_query.to_list()
+        result = self.collection.find(query, fields).sort("created_at", -1).skip(skip).limit(limit)
+
+        tickets = await result.to_list()
 
         for ticket in tickets:
             ticket["id"] = str(ticket["_id"])
@@ -53,16 +35,7 @@ class TicketsRepository:
         if not ObjectId.is_valid(id):
             return None
 
-        fields = {
-                    "ticket_code": 1,
-                    "title": 1,
-                    "description": 1,
-                    "priority": 1,
-                    "status": 1,
-                    "category": 1,
-                    "reported_name": 1,
-                    "created_at": 1
-                }
+        fields = {"ticket_code": 1, "title": 1, "description": 1, "priority": 1, "status": 1, "category": 1, "reported_name": 1, "created_at": 1}
 
         ticket = await self.collection.find_one({"_id": ObjectId(id)}, fields)
 
@@ -72,7 +45,6 @@ class TicketsRepository:
         ticket["id"] = str(ticket["_id"])
         del ticket["_id"]
         return ticket
-
 
     def create_ticket(self, ticket_data: dict):
         new_ticket_id = len(self.tickets_data["tickets"]) + 1

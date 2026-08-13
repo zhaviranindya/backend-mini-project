@@ -1,8 +1,24 @@
+import logging
+import os
+
+from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 
-MONGO_URL = "mongodb://localhost:27017"
+load_dotenv()
+
+MONGO_URL = os.getenv("MONGO_URL")
+DATABASE_NAME = os.getenv("DATABASE_NAME")
 
 client = AsyncIOMotorClient(MONGO_URL)
+db = client[DATABASE_NAME]
 
-db = client.helpdesk_db
-tickets_collection = db.get_collection("tickets")
+logger = logging.getLogger(__name__)
+
+
+async def connect_database():
+    try:
+        await db.command("ping")
+        logger.info("MongoDB Connected success")
+    except Exception:
+        logger.exception("MongoDB Connection failed")
+        raise

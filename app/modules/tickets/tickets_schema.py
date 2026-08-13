@@ -1,8 +1,9 @@
 from datetime import date
-from typing import Optional
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel, Field
+
 
 class TicketStatus(str, Enum):
     Open = "Open"
@@ -10,13 +11,15 @@ class TicketStatus(str, Enum):
     Resolved = "Resolved"
     Closed = "Closed"
 
+
 class TicketPriority(str, Enum):
     Low = "Low"
     Medium = "Medium"
     High = "High"
 
+
 class TicketsListResponse(BaseModel):
-    id : str 
+    id: str
     ticket_code: str
     title: str
     priority: TicketPriority
@@ -25,8 +28,9 @@ class TicketsListResponse(BaseModel):
     reported_name: str
     created_at: date
 
+
 class TicketsResponse(BaseModel):
-    id : str 
+    id: str
     ticket_code: str
     title: str
     description: str
@@ -36,24 +40,18 @@ class TicketsResponse(BaseModel):
     reported_name: str
     created_at: date
 
+
 class TicketsCreateRequest(BaseModel):
     title: str = Field(..., min_length=1, description="Judul ticket wajib diisi")
-    description: str = Field(..., min_length=1, description="Deskripsi ticket wajib " \
-    "diisi")
+    description: str = Field(..., min_length=1, description="Deskripsi ticket wajib diisi")
     priority: str = Field(..., min_length=1, description="Prioritas ticket wajib diisi")
     category: str = Field(..., min_length=1, description="Kategori ticket wajib diisi")
-    reported_name: str = Field(..., min_length=1, description="Nama Pelapor ticket " \
-    "wajib diisi")
+    reported_name: str = Field(..., min_length=1, description="Nama Pelapor ticket wajib diisi")
 
 
 class TicketsUpdateRequest(BaseModel):
-    title: Optional[str] = Field(None, min_length=1, description="Judul ticket "
-    "(opsional)")
-    description: Optional[str] = Field(None, min_length=1, description="Deskripsi " \
-    "ticket (opsional)")
-    priority: Optional[str] = Field(None, min_length=1, description="Prioritas ticket"
-    " (opsional)")
-    status: Optional[str] = Field(None, min_length=1, description="Status ticket"
-    " (opsional)")
-    category: Optional[str] = Field(None, min_length=1, description="Kategori ticket"
-    " (opsional)")
+    title: Optional[str] = Field(None, min_length=1, description="Judul ticket(opsional)")
+    description: Optional[str] = Field(None, min_length=1, description="Deskripsi ticket(opsional)")
+    priority: Optional[str] = Field(None, min_length=1, description="Prioritas ticket(opsional)")
+    status: Optional[str] = Field(None, min_length=1, description="Status ticket(opsional)")
+    category: Optional[str] = Field(None, min_length=1, description="Kategori ticket(opsional)")
