@@ -1,25 +1,22 @@
 from typing import Optional
-from fastapi import Depends
 
 from app.modules.tickets.tickets_repository import TicketsRepository
+from app.modules.tickets.tickets_schema import TicketStatus
 
-def get_repository(repository: TicketsRepository = Depends()):
-    return repository
 
 class TicketsService:
-    def __init__(self, repository: TicketsRepository = Depends(get_repository)):
-        self.repository = repository
+    def __init__(self, tickets_repository: TicketsRepository):
+        self.tickets_repository = tickets_repository
 
-    async def get_tickets(self, search_title: str = None, status: str = None,
-                          page: int = None, limit: int = 5):
+    async def get_tickets(self, search_title: str = None, status: TicketStatus = None, page: int = 1, limit: int = 5):
 
-        return await self.repository.get_tickets(search_title, status, page, limit)
+        return await self.tickets_repository.get_tickets(search_title, status, page, limit)
 
     async def get_ticket_by_id(self, id: str):
-        return await self.repository.get_ticket_by_id(id)
+        return await self.tickets_repository.get_ticket_by_id(id)
 
-    async def search_tickets(self, status: Optional[str] = None):
-        return self.repository.search_tickets(status)
+    async def search_title_tickets(self, status: Optional[str] = None):
+        return self.repository.search_title_tickets(status)
 
     async def create_ticket(self, ticket_data: dict):
         return self.repository.create_ticket(ticket_data)
