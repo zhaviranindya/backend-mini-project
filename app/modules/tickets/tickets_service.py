@@ -1,5 +1,3 @@
-from typing import Optional
-
 from app.modules.tickets.tickets_repository import TicketsRepository
 from app.modules.tickets.tickets_schema import TicketStatus
 
@@ -15,11 +13,8 @@ class TicketsService:
     async def get_ticket_by_id(self, id: str):
         return await self.tickets_repository.get_ticket_by_id(id)
 
-    async def search_title_tickets(self, status: Optional[str] = None):
-        return self.repository.search_title_tickets(status)
-
     async def create_ticket(self, ticket_data: dict):
-        return self.repository.create_ticket(ticket_data)
+        return await self.tickets_repository.create_ticket(ticket_data)
 
     async def update_ticket(self, ticket_id: str, ticket_data: dict):
         return self.repository.update_ticket(ticket_id, ticket_data)

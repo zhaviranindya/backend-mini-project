@@ -34,7 +34,7 @@ async def get_ticket_by_id(id: str, service: TicketsService = Depends(get_ticket
     return ticket
 
 
-@router.post("", response_model=TicketsListResponse, status_code=201)
+@router.post("", response_model=TicketsResponse, status_code=201)
 async def create_ticket(ticket: TicketsCreateRequest, tickets_service: TicketsService = Depends(get_tickets_service)):
     new_ticket = await tickets_service.create_ticket(ticket.model_dump())
     return new_ticket
