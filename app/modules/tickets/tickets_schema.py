@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
@@ -25,8 +25,8 @@ class TicketsListResponse(BaseModel):
     priority: TicketPriority
     status: TicketStatus
     category: str
-    reported_name: str
-    created_at: date
+    reporter_name: str
+    created_at: datetime
 
 
 class TicketsResponse(BaseModel):
@@ -37,8 +37,8 @@ class TicketsResponse(BaseModel):
     priority: TicketPriority
     status: TicketStatus
     category: str
-    reported_name: str
-    created_at: date
+    reporter_name: str
+    created_at: datetime
 
 
 class TicketsCreateRequest(BaseModel):
@@ -46,7 +46,7 @@ class TicketsCreateRequest(BaseModel):
     description: str = Field(..., min_length=1, description="Deskripsi ticket wajib diisi")
     priority: str = Field(..., min_length=1, description="Prioritas ticket wajib diisi")
     category: str = Field(..., min_length=1, description="Kategori ticket wajib diisi")
-    reported_name: str = Field(..., min_length=1, description="Nama Pelapor ticket wajib diisi")
+    reported_by: str = Field(..., min_length=1, description="Nama Pelapor ticket wajib diisi")
 
 
 class TicketsUpdateRequest(BaseModel):

@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 
 from bson import ObjectId
 
@@ -17,7 +17,7 @@ class TicketsRepository:
         if status:
             query["status"] = status
 
-        fields = {"ticket_code": 1, "title": 1, "priority": 1, "status": 1, "category": 1, "reported_name": 1, "created_at": 1}
+        fields = {"ticket_code": 1, "title": 1, "priority": 1, "status": 1, "category": 1, "reporter_name": 1, "created_at": 1}
 
         skip = (page - 1) * limit
 
@@ -35,7 +35,7 @@ class TicketsRepository:
         if not ObjectId.is_valid(id):
             return None
 
-        fields = {"ticket_code": 1, "title": 1, "description": 1, "priority": 1, "status": 1, "category": 1, "reported_name": 1, "created_at": 1}
+        fields = {"ticket_code": 1, "title": 1, "description": 1, "priority": 1, "status": 1, "category": 1, "reporter_name": 1, "created_at": 1}
 
         ticket = await self.collection.find_one({"_id": ObjectId(id)}, fields)
 
@@ -46,19 +46,24 @@ class TicketsRepository:
         del ticket["_id"]
         return ticket
 
-    def create_ticket(self, ticket_data: dict):
-        new_ticket_id = len(self.tickets_data["tickets"]) + 1
+    async def create_ticket(self, ticket_data: dict):
+        total_ticket = await self.collection.count_documents({})
+        new_ticket_code = f"TCK-{total_ticket + 1:03d}"
         new_ticket = {
-            "ticket_id": f"TCK-{new_ticket_id:03d}",
+            "ticket_code": new_ticket_code,
             "title": ticket_data["title"],
             "description": ticket_data["description"],
             "priority": ticket_data["priority"],
-            "status": "Open",
+            "status": TicketStatus.Open,
             "category": ticket_data["category"],
-            "reported_name": ticket_data["reported_name"],
-            "created_at": date.today(),
+            "reporter_name": ticket_data["reported_by"],
+            "created_at": datetime.now(),
         }
-        self.tickets_data["tickets"].append(new_ticket)
+        tickets = await self.collection.insert_one(new_ticket)
+
+        new_ticket["id"] = str(tickets.inserted_id)
+        del new_ticket["_id"]
+
         return new_ticket
 
     def update_ticket(self, ticket_id: str, ticket_data: dict):
