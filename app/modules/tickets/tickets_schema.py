@@ -39,6 +39,7 @@ class TicketsResponse(BaseModel):
     category: str
     reporter_name: str
     created_at: datetime
+    updated_at: Optional[datetime] = None
 
 
 class TicketsCreateRequest(BaseModel):
@@ -52,6 +53,5 @@ class TicketsCreateRequest(BaseModel):
 class TicketsUpdateRequest(BaseModel):
     title: Optional[str] = Field(None, min_length=1, description="Judul ticket(opsional)")
     description: Optional[str] = Field(None, min_length=1, description="Deskripsi ticket(opsional)")
-    priority: Optional[str] = Field(None, min_length=1, description="Prioritas ticket(opsional)")
-    status: Optional[str] = Field(None, min_length=1, description="Status ticket(opsional)")
+    priority: Optional[TicketPriority] = Field(None, min_length=1, description="Prioritas ticket(opsional)")
     category: Optional[str] = Field(None, min_length=1, description="Kategori ticket(opsional)")

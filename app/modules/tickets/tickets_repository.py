@@ -35,7 +35,7 @@ class TicketsRepository:
         if not ObjectId.is_valid(id):
             return None
 
-        fields = {"ticket_code": 1, "title": 1, "description": 1, "priority": 1, "status": 1, "category": 1, "reporter_name": 1, "created_at": 1}
+        fields = {"ticket_code": 1, "title": 1, "description": 1, "priority": 1, "status": 1, "category": 1, "reporter_name": 1, "created_at": 1, "updated_at": 1}
 
         ticket = await self.collection.find_one({"_id": ObjectId(id)}, fields)
 
@@ -49,16 +49,7 @@ class TicketsRepository:
     async def create_ticket(self, ticket_data: dict):
         total_ticket = await self.collection.count_documents({})
         new_ticket_code = f"TCK-{total_ticket + 1:03d}"
-        new_ticket = {
-            "ticket_code": new_ticket_code,
-            "title": ticket_data["title"],
-            "description": ticket_data["description"],
-            "priority": ticket_data["priority"],
-            "status": TicketStatus.Open,
-            "category": ticket_data["category"],
-            "reporter_name": ticket_data["reported_by"],
-            "created_at": datetime.now(),
-        }
+        new_ticket = {"ticket_code": new_ticket_code, "title": ticket_data["title"], "description": ticket_data["description"], "priority": ticket_data["priority"], "status": TicketStatus.Open, "category": ticket_data["category"], "reporter_name": ticket_data["reported_by"], "created_at": datetime.now()}
         tickets = await self.collection.insert_one(new_ticket)
 
         new_ticket["id"] = str(tickets.inserted_id)
@@ -66,28 +57,34 @@ class TicketsRepository:
 
         return new_ticket
 
-    def update_ticket(self, ticket_id: str, ticket_data: dict):
-        for ticket in self.tickets_data["tickets"]:
-            if ticket["ticket_id"] == ticket_id:
-                if ticket_data["title"] is not None:
-                    ticket["title"] = ticket_data["title"]
+    async def update_ticket(self, id: str, ticket_data: dict):
+        if not ObjectId.is_valid(id):
+            return None
 
-                if ticket_data["description"] is not None:
-                    ticket["description"] = ticket_data["description"]
+        update_fields = {}
 
-                if ticket_data["priority"] is not None:
-                    ticket["priority"] = ticket_data["priority"]
+        if ticket_data["title"] is not None:
+            update_fields["title"] = ticket_data["title"]
 
-                if ticket_data["status"] is not None:
-                    ticket["status"] = ticket_data["status"]
+        if ticket_data["description"] is not None:
+            update_fields["description"] = ticket_data["description"]
 
-                if ticket_data["category"] is not None:
-                    ticket["category"] = ticket_data["category"]
+        if ticket_data["priority"] is not None:
+            update_fields["priority"] = ticket_data["priority"]
 
-                return ticket
-        return None
+        if ticket_data["category"] is not None:
+            update_fields["category"] = ticket_data["category"]
 
-    def delete_ticket(self, ticket_id: str):
+        update_fields["updated_at"] = datetime.now()
+
+        tickets = await self.collection.update_one({"_id": ObjectId(id)}, {"$set": update_fields})
+
+        if tickets.matched_count == 0:
+            return None
+
+        return await self.get_ticket_by_id(id)
+
+    async def delete_ticket(self, ticket_id: str):
         for ticket in self.tickets_data["tickets"]:
             if ticket["ticket_id"] == ticket_id:
                 self.tickets_data["tickets"].remove(ticket)
