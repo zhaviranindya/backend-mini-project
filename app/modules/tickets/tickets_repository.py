@@ -84,9 +84,10 @@ class TicketsRepository:
 
         return await self.get_ticket_by_id(id)
 
-    async def delete_ticket(self, ticket_id: str):
-        for ticket in self.tickets_data["tickets"]:
-            if ticket["ticket_id"] == ticket_id:
-                self.tickets_data["tickets"].remove(ticket)
-                return True
-        return False
+    async def delete_ticket(self, id: str):
+        if not ObjectId.is_valid(id):
+            return None
+
+        tickets = await self.collection.delete_one({"_id": ObjectId(id)})
+
+        return tickets.deleted_count > 0

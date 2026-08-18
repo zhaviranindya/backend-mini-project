@@ -53,10 +53,10 @@ async def update_ticket(
     return updated_ticket
 
 
-@router.delete("/{ticket_id}")
-async def delete_ticket(ticket_id: str, tickets_service: TicketsService = Depends(get_tickets_service)):
-    deleted_ticket = await tickets_service.delete_ticket(ticket_id)
+@router.delete("/{id}")
+async def delete_ticket(id: str, tickets_service: TicketsService = Depends(get_tickets_service)):
+    deleted_ticket = await tickets_service.delete_ticket(id)
 
     if not deleted_ticket:
         raise HTTPException(status_code=404, detail="Ticket tidak ditemukan!")
-    return {"message": f"Ticket dengan ID {ticket_id} berhasil dihapus"}
+    return {"message": f"Ticket dengan ID {id} berhasil dihapus"}
