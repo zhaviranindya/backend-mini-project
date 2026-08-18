@@ -40,15 +40,15 @@ async def create_ticket(ticket: TicketsCreateRequest, tickets_service: TicketsSe
     return new_ticket
 
 
-@router.patch("/{ticket_id}", response_model=TicketsListResponse)
+@router.put("/{id}", response_model=TicketsResponse)
 async def update_ticket(
-    ticket_id: str,
+    id: str,
     ticket: TicketsUpdateRequest,
     tickets_service: TicketsService = Depends(get_tickets_service),
 ):
-    updated_ticket = await tickets_service.update_ticket(ticket_id, ticket.model_dump())
+    updated_ticket = await tickets_service.update_ticket(id, ticket.model_dump())
 
-    if update_ticket is None:
+    if updated_ticket is None:
         raise HTTPException(status_code=404, detail="Ticket tidak ditemukan!")
     return updated_ticket
 
