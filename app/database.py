@@ -6,11 +6,11 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 load_dotenv()
 
-MONGO_URL = os.getenv("MONGO_URL")
-DATABASE_NAME = os.getenv("DATABASE_NAME")
+HELPDESK_DB_URI = os.getenv("HELPDESK_DB_URI")
+HELPDESK_DB_NAME = os.getenv("HELPDESK_DB_NAME")
 
-client = AsyncIOMotorClient(MONGO_URL)
-db = client[DATABASE_NAME]
+client = AsyncIOMotorClient(HELPDESK_DB_URI)
+db = client[HELPDESK_DB_NAME]
 
 logger = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@ from datetime import datetime
 from bson import ObjectId
 
 from app.database import db
-from app.modules.tickets.tickets_schema import TicketStatus
+from app.modules.tickets.tickets_schema import TicketsCreateRequest, TicketStatus, TicketsUpdateRequest
 
 
 class TicketsRepository:
@@ -31,13 +31,13 @@ class TicketsRepository:
 
         return tickets
 
-    async def get_ticket_by_id(self, id: str):
-        if not ObjectId.is_valid(id):
+    async def get_ticket_by_id(self, ticket_id: str):
+        if not ObjectId.is_valid(ticket_id):
             return None
 
         fields = {"ticket_code": 1, "title": 1, "description": 1, "priority": 1, "status": 1, "category": 1, "reporter_name": 1, "created_at": 1, "updated_at": 1}
 
-        ticket = await self.collection.find_one({"_id": ObjectId(id)}, fields)
+        ticket = await self.collection.find_one({"_id": ObjectId(ticket_id)}, fields)
 
         if ticket is None:
             return None
@@ -46,10 +46,12 @@ class TicketsRepository:
         del ticket["_id"]
         return ticket
 
-    async def create_ticket(self, ticket_data: dict):
-        total_ticket = await self.collection.count_documents({})
-        new_ticket_code = f"TCK-{total_ticket + 1:03d}"
-        new_ticket = {"ticket_code": new_ticket_code, "title": ticket_data["title"], "description": ticket_data["description"], "priority": ticket_data["priority"], "status": TicketStatus.Open, "category": ticket_data["category"], "reporter_name": ticket_data["reported_by"], "created_at": datetime.now()}
+    async def count_tickets(self):
+        return await self.collection.count_documents({})
+
+    async def create_ticket(self, ticket_data: TicketsCreateRequest, new_ticket_code: str):
+
+        new_ticket = {"ticket_code": new_ticket_code, "title": ticket_data.title, "description": ticket_data.description, "priority": ticket_data.priority, "status": TicketStatus.Open, "category": ticket_data.category, "reporter_name": ticket_data.reported_by, "created_at": datetime.now()}
         tickets = await self.collection.insert_one(new_ticket)
 
         new_ticket["id"] = str(tickets.inserted_id)
@@ -57,37 +59,37 @@ class TicketsRepository:
 
         return new_ticket
 
-    async def update_ticket(self, id: str, ticket_data: dict):
-        if not ObjectId.is_valid(id):
+    async def update_ticket(self, ticket_id: str, ticket_data: TicketsUpdateRequest):
+        if not ObjectId.is_valid(ticket_id):
             return None
 
         update_fields = {}
 
-        if ticket_data["title"] is not None:
-            update_fields["title"] = ticket_data["title"]
+        if ticket_data.title is not None:
+            update_fields["title"] = ticket_data.title
 
-        if ticket_data["description"] is not None:
-            update_fields["description"] = ticket_data["description"]
+        if ticket_data.description is not None:
+            update_fields["description"] = ticket_data.description
 
-        if ticket_data["priority"] is not None:
-            update_fields["priority"] = ticket_data["priority"]
+        if ticket_data.priority is not None:
+            update_fields["priority"] = ticket_data.priority
 
-        if ticket_data["category"] is not None:
-            update_fields["category"] = ticket_data["category"]
+        if ticket_data.category is not None:
+            update_fields["category"] = ticket_data.category
 
         update_fields["updated_at"] = datetime.now()
 
-        tickets = await self.collection.update_one({"_id": ObjectId(id)}, {"$set": update_fields})
+        tickets = await self.collection.update_one({"_id": ObjectId(ticket_id)}, {"$set": update_fields})
 
         if tickets.matched_count == 0:
             return None
 
-        return await self.get_ticket_by_id(id)
+        return await self.get_ticket_by_id(ticket_id)
 
-    async def delete_ticket(self, id: str):
-        if not ObjectId.is_valid(id):
+    async def delete_ticket(self, ticket_id: str):
+        if not ObjectId.is_valid(ticket_id):
             return None
 
-        tickets = await self.collection.delete_one({"_id": ObjectId(id)})
+        tickets = await self.collection.delete_one({"_id": ObjectId(ticket_id)})
 
         return tickets.deleted_count > 0
